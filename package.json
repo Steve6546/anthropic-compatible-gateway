@@ -1,0 +1,16 @@
+{
+  "name": "anthropic-compatible-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test",
+    "start:all": "powershell -ExecutionPolicy Bypass -File scripts/start-all.ps1",
+    "test:all": "powershell -ExecutionPolicy Bypass -File scripts/test-all.ps1",
+    "stop:all": "powershell -ExecutionPolicy Bypass -File scripts/stop-all.ps1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

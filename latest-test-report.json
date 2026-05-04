@@ -1,0 +1,61 @@
+﻿{
+    "timestamp":  "2026-05-05T01:47:43",
+    "project":  "C:\\Users\\dlwta\\OneDrive\\Documents\\New project 19",
+    "model":  "claude-gpt-5-3-codex",
+    "gateway":  "http://127.0.0.1:4000",
+    "openai_oauth":  "http://127.0.0.1:10531/v1",
+    "requests":  20,
+    "concurrency":  4,
+    "results":  [
+                    {
+                        "name":  "openai-oauth models",
+                        "pass":  true,
+                        "ms":  91.2,
+                        "detail":  "reachable"
+                    },
+                    {
+                        "name":  "gateway models",
+                        "pass":  true,
+                        "ms":  3.2,
+                        "detail":  "claude-gpt-5-5, claude-gpt-5-4, claude-gpt-5-3-codex"
+                    },
+                    {
+                        "name":  "count_tokens",
+                        "pass":  true,
+                        "ms":  4.2,
+                        "detail":  "input_tokens=2"
+                    },
+                    {
+                        "name":  "gateway message",
+                        "pass":  true,
+                        "ms":  1929.7,
+                        "detail":  "gateway-ok"
+                    },
+                    {
+                        "name":  "gateway streaming",
+                        "pass":  true,
+                        "ms":  2000.2,
+                        "detail":  "sse bytes=790"
+                    },
+                    {
+                        "name":  "mcp filesystem",
+                        "pass":  true,
+                        "ms":  1991.6,
+                        "detail":  "Checking MCP server health… filesystem: npx.cmd -y @modelcontextprotocol/server-filesystem C:\\Users\\dlwta\\OneDrive\\Documents\\New project 19 - ✓ Connected"
+                    },
+                    {
+                        "name":  "claude cli + mcp",
+                        "pass":  true,
+                        "ms":  6074.8,
+                        "detail":  "OK — allowed directory is `C:\\Users\\dlwta\\OneDrive\\Documents\\New project 19`."
+                    },
+                    {
+                        "name":  "load test",
+                        "pass":  true,
+                        "ms":  40477.4,
+                        "detail":  "requests=20 concurrency=4 success=20 failure=0 avg_ms=3959 p95_ms=5588"
+                    }
+                ],
+    "passed":  8,
+    "failed":  0
+}

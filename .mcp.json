@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\dlwta\\OneDrive\\Documents\\New project 19"
+      ],
+      "env": {}
+    }
+  }
+}
