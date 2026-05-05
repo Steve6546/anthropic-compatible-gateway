@@ -32,12 +32,12 @@ export function createGatewayServer({ config = {}, fetchImpl = fetch } = {}) {
 
       if (request.method === "POST" && path === "/v1/messages") {
         const body = await readJson(request);
-        logger.info("gateway.messages.request", { body });
+        logger.info("gateway.messages.request", { body: summarizeAnthropicRequest(body) });
         validateMessageRequest(body);
         const model = resolveModel(body.model, gatewayConfig);
         if (!model) throw httpError(400, "Unsupported model alias. Allowed aliases: claude-gpt-5-5, claude-gpt-5-4, claude-gpt-5-3-codex");
         const result = await callProvider({ ...model, body, config: gatewayConfig, fetchImpl, logger });
-        logger.info("gateway.messages.response", { body: result, streamRequested: Boolean(body.stream) });
+        logger.info("gateway.messages.response", { body: summarizeAnthropicMessage(result), streamRequested: Boolean(body.stream) });
         if (body.stream) return streamAnthropicMessage(response, result, logger);
         return json(response, 200, result);
       }
@@ -82,6 +82,31 @@ async function readJson(request) {
 function json(response, status, body) {
   response.writeHead(status, { "content-type": "application/json" });
   response.end(JSON.stringify(body));
+}
+
+function summarizeAnthropicRequest(body) {
+  return {
+    model: body?.model,
+    max_tokens: body?.max_tokens,
+    stream: Boolean(body?.stream),
+    message_count: Array.isArray(body?.messages) ? body.messages.length : 0,
+    tool_count: Array.isArray(body?.tools) ? body.tools.length : 0,
+    has_system: Boolean(body?.system)
+  };
+}
+
+function summarizeAnthropicMessage(message) {
+  return {
+    id: message?.id,
+    type: message?.type,
+    role: message?.role,
+    model: message?.model,
+    stop_reason: message?.stop_reason,
+    content_blocks: Array.isArray(message?.content)
+      ? message.content.map((block) => ({ type: block?.type, name: block?.name }))
+      : [],
+    usage: message?.usage
+  };
 }
 
 function streamAnthropicMessage(response, message, logger) {

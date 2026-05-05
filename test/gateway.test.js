@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import { createGatewayServer } from "../src/server.js";
 import { getConfig } from "../src/config.js";
@@ -138,6 +141,39 @@ describe("gateway routes", () => {
       assert.deepEqual(body.content, [{ type: "text", text: "hello from openai" }]);
       assert.deepEqual(body.usage, { input_tokens: 12, output_tokens: 3 });
     });
+  });
+
+  it("does not write raw prompt content to gateway logs", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "gateway-log-"));
+    const logFile = join(dir, "gateway.log");
+    try {
+      await withServer(async () => Response.json({
+        id: "resp_log_test",
+        output: [{ type: "message", role: "assistant", content: [{ type: "output_text", text: "hidden response text" }] }],
+        usage: { input_tokens: 1, output_tokens: 1 }
+      }), async (baseUrl) => {
+        const response = await fetch(`${baseUrl}/v1/messages`, {
+          method: "POST",
+          headers: { ...auth, "content-type": "application/json" },
+          body: JSON.stringify({
+            model: "claude-gpt-5-3-codex",
+            max_tokens: 64,
+            system: "secret memory content",
+            messages: [{ role: "user", content: "private user content" }]
+          })
+        });
+
+        assert.equal(response.status, 200);
+      }, { logEnabled: true, logFile });
+
+      const logs = readFileSync(logFile, "utf8");
+      assert.doesNotMatch(logs, /secret memory content/);
+      assert.doesNotMatch(logs, /private user content/);
+      assert.doesNotMatch(logs, /hidden response text/);
+      assert.match(logs, /"has_system":true/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("falls back to OpenAI-compatible chat completions when Responses returns no content", async () => {

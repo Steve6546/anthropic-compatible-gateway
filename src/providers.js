@@ -54,19 +54,19 @@ export async function callProvider({ publicModel, providerModel, body, config, f
 
 async function callOpenAIResponses({ url, apiKey, body, publicModel, fetchImpl, timeoutMs, logger }) {
   if (!apiKey) throw httpError(500, "Provider API key is not configured");
-  logger?.info("provider.responses.request", { url, body });
+  logger?.info("provider.responses.request", { url, body: summarizeOpenAIRequest(body) });
   const data = await postJson({ url, apiKey, body, fetchImpl, timeoutMs, logger, eventPrefix: "provider.responses" });
   const message = openAIResponseToAnthropicMessage(data, publicModel);
-  logger?.info("provider.responses.translated", { message });
+  logger?.info("provider.responses.translated", { message: summarizeAnthropicMessage(message) });
   return message;
 }
 
 async function callOpenAIChatCompletions({ url, apiKey, body, publicModel, fetchImpl, timeoutMs, logger }) {
   if (!apiKey) throw httpError(500, "Provider API key is not configured");
-  logger?.info("provider.chat_completions.request", { url, body });
+  logger?.info("provider.chat_completions.request", { url, body: summarizeOpenAIRequest(body) });
   const data = await postJson({ url, apiKey, body, fetchImpl, timeoutMs, logger, eventPrefix: "provider.chat_completions" });
   const message = openAIChatToAnthropicMessage(data, publicModel);
-  logger?.info("provider.chat_completions.translated", { message });
+  logger?.info("provider.chat_completions.translated", { message: summarizeAnthropicMessage(message) });
   return message;
 }
 
@@ -99,7 +99,7 @@ async function postJson({ url, apiKey, body, fetchImpl, timeoutMs, logger, event
   }
 
   const text = await response.text();
-  logger?.info(`${eventPrefix}.raw_response`, { status: response.status, ok: response.ok, body: safeJsonOrText(text) });
+  logger?.info(`${eventPrefix}.raw_response`, { status: response.status, ok: response.ok, body: summarizeProviderResponse(safeJsonOrText(text)) });
   if (!response.ok) throw providerHttpErrorFromText(response, text);
 
   try {
@@ -140,4 +140,48 @@ function shouldUseChatCompletions(body) {
     if (content.some((part) => part?.type === "tool_result" || part?.type === "tool_use")) return true;
   }
   return false;
+}
+
+function summarizeOpenAIRequest(body) {
+  return {
+    model: body?.model,
+    max_tokens: body?.max_tokens,
+    max_output_tokens: body?.max_output_tokens,
+    stream: Boolean(body?.stream),
+    message_count: Array.isArray(body?.messages) ? body.messages.length : undefined,
+    input_count: Array.isArray(body?.input) ? body.input.length : undefined,
+    tool_count: Array.isArray(body?.tools) ? body.tools.length : 0,
+    has_instructions: Boolean(body?.instructions)
+  };
+}
+
+function summarizeProviderResponse(body) {
+  if (!body || typeof body !== "object") {
+    return { type: typeof body, bytes: Buffer.byteLength(String(body || ""), "utf8") };
+  }
+  return {
+    id: body.id,
+    object: body.object,
+    status: body.status,
+    model: body.model,
+    output_count: Array.isArray(body.output) ? body.output.length : undefined,
+    choice_count: Array.isArray(body.choices) ? body.choices.length : undefined,
+    has_error: Boolean(body.error),
+    error_message: body.error?.message,
+    usage: body.usage
+  };
+}
+
+function summarizeAnthropicMessage(message) {
+  return {
+    id: message?.id,
+    type: message?.type,
+    role: message?.role,
+    model: message?.model,
+    stop_reason: message?.stop_reason,
+    content_blocks: Array.isArray(message?.content)
+      ? message.content.map((block) => ({ type: block?.type, name: block?.name }))
+      : [],
+    usage: message?.usage
+  };
 }
