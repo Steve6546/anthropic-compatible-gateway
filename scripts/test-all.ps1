@@ -8,7 +8,31 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ProjectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-$Token = "my-secret-gateway-token"
+
+function Read-DotEnv([string]$Path) {
+  $values = @{}
+  if (-not (Test-Path $Path)) { return $values }
+  foreach ($line in Get-Content $Path) {
+    $trimmed = $line.Trim()
+    if (-not $trimmed -or $trimmed.StartsWith("#")) { continue }
+    $separator = $trimmed.IndexOf("=")
+    if ($separator -lt 1) { continue }
+    $key = $trimmed.Substring(0, $separator).Trim()
+    $value = $trimmed.Substring($separator + 1).Trim()
+    if (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'"))) {
+      $value = $value.Substring(1, $value.Length - 2)
+    }
+    $values[$key] = $value
+  }
+  return $values
+}
+
+$DotEnv = Read-DotEnv (Join-Path $ProjectRoot ".env")
+$Token = $env:ANTHROPIC_AUTH_TOKEN
+if (-not $Token) { $Token = $env:GATEWAY_AUTH_TOKEN }
+if (-not $Token) { $Token = $DotEnv["ANTHROPIC_AUTH_TOKEN"] }
+if (-not $Token) { $Token = $DotEnv["GATEWAY_AUTH_TOKEN"] }
+if (-not $Token) { throw "Set GATEWAY_AUTH_TOKEN in .env or the environment before running tests." }
 
 function Add-Result([System.Collections.Generic.List[object]]$Results, [string]$Name, [bool]$Pass, [double]$Ms, [string]$Detail) {
   $Results.Add([pscustomobject]@{

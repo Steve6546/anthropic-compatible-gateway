@@ -18,9 +18,9 @@ function Get-ListenerPid([int]$Port) {
 }
 
 function Stop-Listener([int]$Port) {
-  $pid = Get-ListenerPid $Port
-  if ($pid) {
-    Stop-Process -Id $pid -Force
+  $listenerPid = Get-ListenerPid $Port
+  if ($listenerPid) {
+    Stop-Process -Id $listenerPid -Force
     Start-Sleep -Milliseconds 500
   }
 }
@@ -47,7 +47,26 @@ function Wait-Port([int]$Port, [int]$Seconds = 30) {
   throw "Timed out waiting for 127.0.0.1:$Port"
 }
 
+function Read-DotEnv([string]$Path) {
+  $values = @{}
+  if (-not (Test-Path $Path)) { return $values }
+  foreach ($line in Get-Content $Path) {
+    $trimmed = $line.Trim()
+    if (-not $trimmed -or $trimmed.StartsWith("#")) { continue }
+    $separator = $trimmed.IndexOf("=")
+    if ($separator -lt 1) { continue }
+    $key = $trimmed.Substring(0, $separator).Trim()
+    $value = $trimmed.Substring($separator + 1).Trim()
+    if (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'"))) {
+      $value = $value.Substring(1, $value.Length - 2)
+    }
+    $values[$key] = $value
+  }
+  return $values
+}
+
 Set-Location $ProjectRoot
+$DotEnv = Read-DotEnv (Join-Path $ProjectRoot ".env")
 
 if ($Restart) {
   Stop-Listener $GatewayPort
@@ -64,8 +83,14 @@ if (-not (Get-ListenerPid $GatewayPort)) {
 }
 Wait-Port $GatewayPort
 
+$GatewayToken = $env:ANTHROPIC_AUTH_TOKEN
+if (-not $GatewayToken) { $GatewayToken = $env:GATEWAY_AUTH_TOKEN }
+if (-not $GatewayToken) { $GatewayToken = $DotEnv["ANTHROPIC_AUTH_TOKEN"] }
+if (-not $GatewayToken) { $GatewayToken = $DotEnv["GATEWAY_AUTH_TOKEN"] }
+if (-not $GatewayToken) { throw "Set GATEWAY_AUTH_TOKEN in .env or the environment before starting the gateway." }
+
 $env:ANTHROPIC_BASE_URL = $GatewayUrl
-$env:ANTHROPIC_AUTH_TOKEN = "my-secret-gateway-token"
+$env:ANTHROPIC_AUTH_TOKEN = $GatewayToken
 $env:ANTHROPIC_MODEL = $Model
 Remove-Item Env:ANTHROPIC_API_KEY -ErrorAction SilentlyContinue
 

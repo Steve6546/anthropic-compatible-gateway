@@ -6,6 +6,8 @@ import { estimateTokensForRequest, listAnthropicModels, resolveModel } from "./a
 import { callProvider, httpError } from "./providers.js";
 import { createLogger } from "./logger.js";
 
+const MAX_JSON_BODY_BYTES = 10 * 1024 * 1024;
+
 export function createGatewayServer({ config = {}, fetchImpl = fetch } = {}) {
   const gatewayConfig = { ...getConfig({}), ...config };
   const logger = createLogger(gatewayConfig);
@@ -70,7 +72,14 @@ function validateMessageRequest(body) {
 
 async function readJson(request) {
   const chunks = [];
-  for await (const chunk of request) chunks.push(chunk);
+  let bytes = 0;
+  for await (const chunk of request) {
+    bytes += chunk.length;
+    if (bytes > MAX_JSON_BODY_BYTES) {
+      throw httpError(413, "JSON body exceeds 10 MB limit", "request_too_large");
+    }
+    chunks.push(chunk);
+  }
   if (chunks.length === 0) return {};
   try {
     return JSON.parse(Buffer.concat(chunks).toString("utf8"));

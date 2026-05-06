@@ -36,6 +36,18 @@ async function withServer(handler, test, configOverrides = {}) {
   }
 }
 
+async function readEventually(path, pattern) {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try {
+      const text = readFileSync(path, "utf8");
+      if (!pattern || pattern.test(text)) return text;
+    } catch {
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  return readFileSync(path, "utf8");
+}
+
 describe("gateway routes", () => {
   it("rejects requests without the configured bearer token", async () => {
     await withServer(async () => {
@@ -166,7 +178,7 @@ describe("gateway routes", () => {
         assert.equal(response.status, 200);
       }, { logEnabled: true, logFile });
 
-      const logs = readFileSync(logFile, "utf8");
+      const logs = await readEventually(logFile, /"has_system":true/);
       assert.doesNotMatch(logs, /secret memory content/);
       assert.doesNotMatch(logs, /private user content/);
       assert.doesNotMatch(logs, /hidden response text/);
@@ -414,6 +426,25 @@ describe("gateway routes", () => {
       });
       assert.equal(response.status, 200);
       assert.deepEqual(await response.json(), { input_tokens: estimateAnthropicTokens("one two three four") });
+    });
+  });
+
+  it("rejects JSON request bodies larger than the gateway limit", async () => {
+    await withServer(async () => {
+      throw new Error("provider should not be called");
+    }, async (baseUrl) => {
+      const oversizedBody = JSON.stringify({ content: "x".repeat(10 * 1024 * 1024) });
+      const response = await fetch(`${baseUrl}/v1/messages/count_tokens`, {
+        method: "POST",
+        headers: { ...auth, "content-type": "application/json" },
+        body: oversizedBody
+      });
+
+      assert.equal(response.status, 413);
+      assert.deepEqual(await response.json(), {
+        type: "error",
+        error: { type: "request_too_large", message: "JSON body exceeds 10 MB limit" }
+      });
     });
   });
 });
