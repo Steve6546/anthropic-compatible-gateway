@@ -41,7 +41,7 @@ npm run stop:all
 | --- | --- | --- |
 | `openai-oauth` | `http://127.0.0.1:10531/v1` | Local OpenAI-compatible OAuth-backed endpoint |
 | gateway | `http://127.0.0.1:4000` | Anthropic-compatible API for Claude Code |
-| Claude Code | `claude-gpt-5-3-codex` | Project agent model alias |
+| Claude Code | `claude-gpt-5-3-codex` | Default project agent model alias |
 
 The startup script sets:
 
@@ -60,10 +60,14 @@ claude
 
 ## Models
 
-Only these aliases are exposed:
+These model names are exposed:
 
 | Claude Code alias | OpenAI-compatible model |
 | --- | --- |
+| `GPT-5.5` | `gpt-5.5` |
+| `GPT-5.5 Instant` | `gpt-5.5` |
+| `GPT-5.4` | `gpt-5.4` |
+| `gpt-5.3-codex` | `gpt-5.3-codex` |
 | `claude-gpt-5-5` | `gpt-5.5` |
 | `claude-gpt-5-4` | `gpt-5.4` |
 | `claude-gpt-5-3-codex` | `gpt-5.3-codex` |

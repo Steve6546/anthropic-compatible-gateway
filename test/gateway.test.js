@@ -71,6 +71,10 @@ describe("gateway routes", () => {
       const body = await response.json();
       assert.deepEqual(body, {
         data: [
+          { id: "GPT-5.5", display_name: "GPT-5.5 via OpenAI" },
+          { id: "GPT-5.5 Instant", display_name: "GPT-5.5 Instant via OpenAI" },
+          { id: "GPT-5.4", display_name: "GPT-5.4 via OpenAI" },
+          { id: "gpt-5.3-codex", display_name: "GPT-5.3 Codex via OpenAI" },
           { id: "claude-gpt-5-5", display_name: "GPT-5.5 via OpenAI" },
           { id: "claude-gpt-5-4", display_name: "GPT-5.4 via OpenAI" },
           { id: "claude-gpt-5-3-codex", display_name: "GPT-5.3 Codex via OpenAI" }
@@ -370,7 +374,7 @@ describe("gateway routes", () => {
         usage: { input_tokens: 1, output_tokens: 1 }
       });
     }, async (baseUrl) => {
-      for (const model of ["claude-gpt-5-5", "claude-gpt-5-4", "claude-gpt-5-3-codex"]) {
+      for (const model of ["GPT-5.5", "GPT-5.5 Instant", "GPT-5.4", "gpt-5.3-codex", "claude-gpt-5-5", "claude-gpt-5-4", "claude-gpt-5-3-codex"]) {
         const response = await fetch(`${baseUrl}/v1/messages`, {
           method: "POST",
           headers: { ...auth, "content-type": "application/json" },
@@ -384,7 +388,7 @@ describe("gateway routes", () => {
       }
     });
 
-    assert.deepEqual(requests.map((request) => request.model), ["gpt-5.5", "gpt-5.4", "gpt-5.3-codex"]);
+    assert.deepEqual(requests.map((request) => request.model), ["gpt-5.5", "gpt-5.5", "gpt-5.4", "gpt-5.3-codex", "gpt-5.5", "gpt-5.4", "gpt-5.3-codex"]);
   });
 
   it("returns a clear error when OpenAI rejects an unavailable model", async () => {

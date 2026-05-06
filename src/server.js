@@ -37,7 +37,7 @@ export function createGatewayServer({ config = {}, fetchImpl = fetch } = {}) {
         logger.info("gateway.messages.request", { body: summarizeAnthropicRequest(body) });
         validateMessageRequest(body);
         const model = resolveModel(body.model, gatewayConfig);
-        if (!model) throw httpError(400, "Unsupported model alias. Allowed aliases: claude-gpt-5-5, claude-gpt-5-4, claude-gpt-5-3-codex");
+        if (!model) throw httpError(400, "Unsupported model alias. Allowed aliases: GPT-5.5, GPT-5.5 Instant, GPT-5.4, gpt-5.3-codex, claude-gpt-5-5, claude-gpt-5-4, claude-gpt-5-3-codex");
         const result = await callProvider({ ...model, body, config: gatewayConfig, fetchImpl, logger });
         logger.info("gateway.messages.response", { body: summarizeAnthropicMessage(result), streamRequested: Boolean(body.stream) });
         if (body.stream) return streamAnthropicMessage(response, result, logger);

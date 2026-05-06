@@ -75,8 +75,8 @@ try {
 try {
   $step = Measure-Step { Invoke-RestMethod -Uri "$GatewayUrl/v1/models" -Headers @{ Authorization = "Bearer $Token" } -TimeoutSec 20 }
   $ids = $step.value.data.id -join ", "
-  $expected = @("claude-gpt-5-5", "claude-gpt-5-4", "claude-gpt-5-3-codex")
-  $pass = @($step.value.data.id | Where-Object { $_ -in $expected }).Count -eq 3
+  $expected = @("GPT-5.5", "GPT-5.5 Instant", "GPT-5.4", "gpt-5.3-codex")
+  $pass = @($step.value.data.id | Where-Object { $_ -in $expected }).Count -eq $expected.Count
   Add-Result $results "gateway models" $pass $step.ms $ids
 } catch {
   Add-Result $results "gateway models" $false 0 $_.Exception.Message

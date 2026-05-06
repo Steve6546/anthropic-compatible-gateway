@@ -1,5 +1,5 @@
 ﻿{
-    "timestamp":  "2026-05-06T23:32:43",
+    "timestamp":  "2026-05-07T00:33:39",
     "project":  "C:\\Users\\dlwta\\OneDrive\\Documents\\New project 19",
     "model":  "claude-gpt-5-3-codex",
     "gateway":  "http://127.0.0.1:4000",
@@ -10,50 +10,50 @@
                     {
                         "name":  "openai-oauth models",
                         "pass":  true,
-                        "ms":  102.6,
+                        "ms":  78.3,
                         "detail":  "reachable"
                     },
                     {
                         "name":  "gateway models",
                         "pass":  true,
-                        "ms":  3.1,
-                        "detail":  "claude-gpt-5-5, claude-gpt-5-4, claude-gpt-5-3-codex"
+                        "ms":  11.2,
+                        "detail":  "GPT-5.5, GPT-5.5 Instant, GPT-5.4, gpt-5.3-codex, claude-gpt-5-5, claude-gpt-5-4, claude-gpt-5-3-codex"
                     },
                     {
                         "name":  "count_tokens",
                         "pass":  true,
-                        "ms":  6.8,
+                        "ms":  7.8,
                         "detail":  "input_tokens=2"
                     },
                     {
                         "name":  "gateway message",
                         "pass":  true,
-                        "ms":  2504.4,
+                        "ms":  2292.7,
                         "detail":  "gateway-ok"
                     },
                     {
                         "name":  "gateway streaming",
                         "pass":  true,
-                        "ms":  2222.4,
+                        "ms":  1632.8,
                         "detail":  "sse bytes=790"
                     },
                     {
                         "name":  "mcp filesystem",
                         "pass":  true,
-                        "ms":  3480.6,
+                        "ms":  3454.5,
                         "detail":  "Checking MCP server health… filesystem: npx.cmd -y @modelcontextprotocol/server-filesystem C:\\Users\\dlwta\\OneDrive\\Documents\\New project 19 - ✓ Connected"
                     },
                     {
                         "name":  "claude cli + mcp",
                         "pass":  true,
-                        "ms":  6498.5,
-                        "detail":  "OK — the filesystem MCP server is allowed to access `C:\\Users\\dlwta\\OneDrive\\Documents\\New project 19`."
+                        "ms":  6513.9,
+                        "detail":  "OK — allowed directory is `C:\\Users\\dlwta\\OneDrive\\Documents\\New project 19`."
                     },
                     {
                         "name":  "load test",
                         "pass":  true,
-                        "ms":  37569.6,
-                        "detail":  "requests=10 concurrency=2 success=10 failure=0 avg_ms=5262.7 p95_ms=32235.8"
+                        "ms":  15027,
+                        "detail":  "requests=10 concurrency=2 success=10 failure=0 avg_ms=2711.4 p95_ms=4916.5"
                     }
                 ],
     "passed":  8,

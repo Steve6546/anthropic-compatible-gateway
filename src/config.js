@@ -43,7 +43,11 @@ function trimTrailingSlash(value) {
 }
 
 function aliasForOpenAIModel(model) {
+  if (model === "GPT-5.5") return "GPT-5.5";
+  if (model === "GPT-5.5 Instant") return "GPT-5.5 Instant";
+  if (model === "GPT-5.4") return "GPT-5.4";
   if (model === "gpt-5.5") return "claude-gpt-5-5";
+  if (model === "gpt-5.4") return "claude-gpt-5-4";
   if (model === "gpt-5.3-codex") return "claude-gpt-5-3-codex";
   return "claude-gpt-5-4";
 }

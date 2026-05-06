@@ -1,4 +1,8 @@
 export const PUBLIC_MODELS = [
+  { id: "GPT-5.5", providerModel: "gpt-5.5", displayName: "GPT-5.5 via OpenAI" },
+  { id: "GPT-5.5 Instant", providerModel: "gpt-5.5", displayName: "GPT-5.5 Instant via OpenAI" },
+  { id: "GPT-5.4", providerModel: "gpt-5.4", displayName: "GPT-5.4 via OpenAI" },
+  { id: "gpt-5.3-codex", providerModel: "gpt-5.3-codex", displayName: "GPT-5.3 Codex via OpenAI" },
   { id: "claude-gpt-5-5", providerModel: "gpt-5.5", displayName: "GPT-5.5 via OpenAI" },
   { id: "claude-gpt-5-4", providerModel: "gpt-5.4", displayName: "GPT-5.4 via OpenAI" },
   { id: "claude-gpt-5-3-codex", providerModel: "gpt-5.3-codex", displayName: "GPT-5.3 Codex via OpenAI" }
